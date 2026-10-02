@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PreOrder Kasi — Technical Spec</title>
+<style>
+  :root {
+    --bg: #fdf8f3;
+    --surface: #ffffff;
+    --border: #e8ddd3;
+    --text: #2d2a26;
+    --text-muted: #6b6560;
+    --accent: #e85d3d;
+    --accent-light: #f4a261;
+    --green: #4a7c59;
+    --red: #c44536;
+    --blue: #3d6b8e;
+    --warm: #f4e8d8;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 1rem; color: var(--accent); }
+  .tagline { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .kernel {
+    border-left: 4px solid var(--accent);
+    background: linear-gradient(135deg, rgba(232,93,61,0.06) 0%, transparent 100%);
+  }
+  .kernel strong { color: var(--accent); }
+  .loop-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .loop-step:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; margin-bottom: 0.25rem; }
+  .step-desc { color: var(--text-muted); font-size: 0.9rem; }
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .tag-now { background: rgba(74,124,89,0.15); color: var(--green); }
+  .tag-later { background: rgba(61,107,142,0.15); color: var(--blue); }
+  .tag-cut { background: rgba(196,69,54,0.15); color: var(--red); }
+  .reveal {
+    margin: 0.5rem 0;
+  }
+  .reveal-toggle {
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+  .reveal-toggle:hover { border-color: var(--accent); }
+  .reveal-toggle .arrow { transition: transform 0.2s; }
+  .reveal-toggle.open .arrow { transform: rotate(180deg); }
+  .reveal-content {
+    display: none;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .reveal-content.open { display: block; }
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+  .highlight-box {
+    background: rgba(232,93,61,0.08);
+    border: 1px solid rgba(232,93,61,0.25);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .highlight-box strong { color: var(--accent); }
+  ul { padding-left: 1.5rem; }
+  li { margin-bottom: 0.5rem; }
+  .muted { color: var(--text-muted); }
+  .small { font-size: 0.85rem; }
+  code {
+    background: var(--warm);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  pre {
+    background: #2d2a26;
+    color: #e8e9ed;
+    padding: 1rem;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-size: 0.85rem;
+    margin: 0.5rem 0;
+  }
+  .file-tree {
+    background: #2d2a26;
+    color: #e8e9ed;
+    padding: 1rem;
+    border-radius: var(--radius);
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    overflow-x: auto;
+    white-space: pre;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>PreOrder Kasi — Technical Spec</h1>
+<p class="tagline">The blueprint for how we'll build what the PRD describes.</p>
+
+<div class="card kernel">
+  <strong>How it works:</strong> One Next.js app with a frontend (what people see) and backend API routes (logic + database). SQLite file on disk for persistence. Groq free API for AI order parsing. Plain CSS for styling. One command to start, two tabs to demo.
+</div>
+
+<h2>Stack</h2>
+<div class="card">
+  <ul>
+    <li><strong>Next.js 15 (App Router)</strong> — React framework, frontend + API routes in one project. <a href="https://nextjs.org/docs">Docs</a></li>
+    <li><strong>better-sqlite3</strong> — SQLite library, raw SQL queries, no ORM. <a href="https://github.com/WiseLibs/better-sqlite3">Docs</a></li>
+    <li><strong>Groq API</strong> — Free-tier AI for order parsing, structured JSON output. <a href="https://console.groq.com/docs">Docs</a></li>
+    <li><strong>Plain CSS modules</strong> — Scoped CSS per component, no build tools.</li>
+  </ul>
+</div>
+
+<h2>Architecture Diagram</h2>
+<div class="diagram">
+  <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#e85d3d"/>
+      </marker>
+    </defs>
+    <rect x="20" y="40" width="140" height="70" rx="10" fill="#fff" stroke="#e85d3d" stroke-width="2"/>
+    <text x="90" y="65" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Browser</text>
+    <text x="90" y="82" text-anchor="middle" fill="#6b6560" font-size="10">Customer / Seller</text>
+    <text x="90" y="95" text-anchor="middle" fill="#6b6560" font-size="10">UI</text>
+    <line x1="160" y1="75" x2="220" y2="75" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="220" y="40" width="140" height="70" rx="10" fill="#fff" stroke="#3d6b8e" stroke-width="2"/>
+    <text x="290" y="65" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Next.js</text>
+    <text x="290" y="82" text-anchor="middle" fill="#6b6560" font-size="10">API Routes</text>
+    <text x="290" y="95" text-anchor="middle" fill="#6b6560" font-size="10">/api/*</text>
+    <line x1="360" y1="60" x2="420" y2="60" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="420" y1="60" x2="360" y2="90" stroke="#3d6b8e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="420" y="40" width="120" height="40" rx="8" fill="#fff" stroke="#4a7c59" stroke-width="2"/>
+    <text x="480" y="58" text-anchor="middle" fill="#2d2a26" font-size="12" font-weight="600">Groq API</text>
+    <text x="480" y="72" text-anchor="middle" fill="#6b6560" font-size="9">AI Parsing</text>
+    <line x1="360" y1="90" x2="420" y2="90" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="420" y="75" width="120" height="40" rx="8" fill="#fff" stroke="#4a7c59" stroke-width="2"/>
+    <text x="480" y="93" text-anchor="middle" fill="#2d2a26" font-size="12" font-weight="600">SQLite</text>
+    <text x="480" y="107" text-anchor="middle" fill="#6b6560" font-size="9">preorder.db</text>
+    <line x1="540" y1="95" x2="600" y2="95" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="600" y="75" width="80" height="40" rx="8" fill="#fff" stroke="#6b6560" stroke-width="2"/>
+    <text x="640" y="93" text-anchor="middle" fill="#2d2a26" font-size="11" font-weight="600">Data</text>
+    <text x="640" y="107" text-anchor="middle" fill="#6b6560" font-size="9">Persists</text>
+    <text x="350" y="160" text-anchor="middle" fill="#6b6560" font-size="11">All in one Next.js project — one command to start</text>
+    <text x="350" y="180" text-anchor="middle" fill="#6b6560" font-size="11">SQLite is a file on disk — no database server needed</text>
+    <text x="350" y="200" text-anchor="middle" fill="#6b6560" font-size="11">Groq is a simple HTTP API — no complex SDK</text>
+  </svg>
+</div>
+
+<h2>The Core Journey Through the System</h2>
+<div class="card">
+  <div class="loop-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">User opens the app</div>
+      <div class="step-desc">Next.js serves the home page with two buttons.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Customer taps "I'm a customer"</div>
+      <div class="step-desc">Next.js serves the order form page with AI text box and manual fields.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">Customer types order and clicks Parse</div>
+      <div class="step-desc">Browser sends text to <code>/api/parse</code> → API route calls Groq → Groq returns JSON → form fields filled.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Customer submits order</div>
+      <div class="step-desc">Browser sends order to <code>/api/orders</code> → API route checks seller match → saves to SQLite → returns order with reference number.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Customer sees confirmation</div>
+      <div class="step-desc">Browser shows order details, status (Pending), and reference number.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="step-title">Seller opens app in another tab</div>
+      <div class="step-desc">Taps "I'm a seller" → <code>/api/seller/orders</code> reads all orders from SQLite → dashboard rendered.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <div class="step-title">Seller confirms an order</div>
+      <div class="step-desc">Browser sends confirmation to <code>/api/seller/orders/[id]/confirm</code> → API route updates SQLite status to "confirmed".</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">8</div>
+    <div class="step-content">
+      <div class="step-title">Seller views prep list</div>
+      <div class="step-desc"><code>/api/seller/prep-list</code> reads confirmed orders from SQLite → groups by pickup time → browser renders grouped list.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">9</div>
+    <div class="step-content">
+      <div class="step-title">Seller marks collected</div>
+      <div class="step-desc">Browser sends update to <code>/api/seller/orders/[id]/collect</code> → API route updates SQLite status to "collected".</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">10</div>
+    <div class="step-content">
+      <div class="step-title">Customer refreshes</div>
+      <div class="step-desc">Browser calls <code>/api/orders/[id]</code> → reads latest status from SQLite → customer sees update.</div>
+    </div>
+  </div>
+</div>
+
+<h2>Components</h2>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Home Page</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Two large buttons: "I'm a customer" and "I'm a seller". "Look up my order" link. Entry point for all flows.</p>
+    <p class="muted">PRD ref: <code>prd.md > Screens and Layout > 1. Home Screen</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Customer Order Form</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>AI text box with "Parse" button. Manual form fields: Name, Item, Quantity, Pickup Date, Pickup Time, Location. Submit button.</p>
+    <p class="muted">Calls <code>/api/parse</code> for AI parsing, <code>/api/orders</code> for submission.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Customer: Place a Pre-Order</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Customer Order Confirmation</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Order details, customer name, reference number, current status. "Check status" button.</p>
+    <p class="muted">Calls <code>/api/orders/[id]</code> to refresh status.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Customer: Check Order Status</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Order Lookup</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Single input for reference number. Shows order details and current status.</p>
+    <p class="muted">Calls <code>/api/orders/[id]</code> to fetch order.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Customer: Look Up Order</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller Setup Form</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Name, items (comma-separated), availability window (start/end time).</p>
+    <p class="muted">Calls <code>/api/seller/setup</code> to create seller profile.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Seller: One-Time Setup</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller Dashboard</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Lists all incoming orders. Confirm/Decline buttons for pending orders. Link to prep list.</p>
+    <p class="muted">Calls <code>/api/seller/orders</code> for list, <code>/api/seller/orders/[id]/confirm</code> and <code>/api/seller/orders/[id]/decline</code> for actions.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Seller: Manage Incoming Orders</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller Prep List</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Confirmed orders grouped by pickup time slot. Mark as "collected" or "not collected".</p>
+    <p class="muted">Calls <code>/api/seller/prep-list</code> for grouped data, <code>/api/seller/orders/[id]/collect</code> for status updates.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Seller: View Prep List</code> and <code>Seller: Mark Orders as Collected</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Database Module</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Singleton connection to SQLite file (<code>data/preorder.db</code>). Creates tables on first run. Exports query functions used by API routes.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Data Persistence</code></p>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>AI Parse Module</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>Sends order text to Groq API with a JSON schema. Returns structured data: <code>{ item, quantity, date, time }</code>. Handles API errors gracefully.</p>
+    <p class="muted">PRD ref: <code>prd.md > Features and Behavior > Customer: AI-Assisted Order Entry</code></p>
+  </div>
+</div>
+
+<h2>Data Model</h2>
+<div class="card">
+  <h3>sellers table</h3>
+  <ul>
+    <li><code>id</code> — Primary key, auto-increment</li>
+    <li><code>name</code> — Seller name</li>
+    <li><code>items</code> — Comma-separated list of items</li>
+    <li><code>available_start</code> — Availability window start (e.g. "16:00")</li>
+    <li><code>available_end</code> — Availability window end (e.g. "20:00")</li>
+    <li><code>created_at</code> — Timestamp</li>
+  </ul>
+  <h3>orders table</h3>
+  <ul>
+    <li><code>id</code> — Primary key, auto-increment (used as reference number)</li>
+    <li><code>customer_name</code> — Customer's name</li>
+    <li><code>item</code> — Food item ordered</li>
+    <li><code>quantity</code> — Number of items</li>
+    <li><code>pickup_date</code> — Pickup date (ISO format)</li>
+    <li><code>pickup_time</code> — Pickup time (HH:MM format)</li>
+    <li><code>location</code> — Pickup location (text)</li>
+    <li><code>status</code> — pending, confirmed, declined, collected, not_collected</li>
+    <li><code>seller_id</code> — Foreign key to sellers table</li>
+    <li><code>created_at</code> — Timestamp</li>
+  </ul>
+</div>
+
+<h2>File Structure</h2>
+<div class="file-tree">preorder-kasi/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx           # Root layout
+│   │   ├── page.tsx             # Home screen
+│   │   ├── globals.css          # Global styles
+│   │   ├── customer/
+│   │   │   ├── order/page.tsx   # Customer order form
+│   │   │   ├── confirmation/[id]/page.tsx
+│   │   │   └── lookup/page.tsx  # Order lookup
+│   │   ├── seller/
+│   │   │   ├── setup/page.tsx   # Seller setup form
+│   │   │   ├── dashboard/page.tsx
+│   │   │   └── prep-list/page.tsx
+│   │   └── api/
+│   │       ├── parse/route.ts   # POST: AI order parsing
+│   │       ├── orders/route.ts  # POST: create order
+│   │       ├── orders/[id]/route.ts
+│   │       └── seller/
+│   │           ├── setup/route.ts
+│   │           ├── orders/route.ts
+│   │           ├── orders/[id]/confirm/route.ts
+│   │           ├── orders/[id]/decline/route.ts
+│   │           ├── orders/[id]/collect/route.ts
+│   │           └── prep-list/route.ts
+│   ├── lib/
+│   │   ├── db.ts                # SQLite connection
+│   │   └── ai.ts                # Groq API call
+│   └── components/
+│       ├── OrderForm.tsx
+│       ├── StatusBadge.tsx
+│       └── PrepList.tsx
+├── data/
+│   └── preorder.db              # SQLite database file
+├── devpost/                     # Devpost learning workspace
+├── package.json
+├── next.config.ts
+├── tsconfig.json
+└── README.md</div>
+
+<h2>External Services</h2>
+<div class="card">
+  <h3>Groq API</h3>
+  <ul>
+    <li><strong>Endpoint:</strong> <code>POST https://api.groq.com/openai/v1/chat/completions</code></li>
+    <li><strong>Auth:</strong> Bearer token (GROQ_API_KEY environment variable)</li>
+    <li><strong>Model:</strong> <code>openai/gpt-oss-120b</code> (free tier, supports structured outputs)</li>
+    <li><strong>Rate limits:</strong> 30 requests/min, 1,000 requests/day</li>
+    <li><strong>Cost:</strong> Free</li>
+    <li><strong>Docs:</strong> <a href="https://console.groq.com/docs">console.groq.com/docs</a></li>
+  </ul>
+  <h3>better-sqlite3</h3>
+  <ul>
+    <li><strong>No external service</strong> — local file database</li>
+    <li><strong>npm package:</strong> <code>better-sqlite3</code></li>
+    <li><strong>Docs:</strong> <a href="https://github.com/WiseLibs/better-sqlite3">github.com/WiseLibs/better-sqlite3</a></li>
+  </ul>
+</div>
+
+<h2>Important Failure Modes</h2>
+<div class="card">
+  <ul>
+    <li><strong>Groq API is slow or fails</strong> → Parse route returns error. Customer sees "Couldn't parse that — please fill in the form manually." Form is always available as fallback.</li>
+    <li><strong>No seller matches the order</strong> → Order route returns "No seller available for that item or time." Customer can try different item or time.</li>
+    <li><strong>Seller has no orders yet</strong> → Dashboard shows "No orders yet". Prep list shows "No confirmed orders yet."</li>
+    <li><strong>Invalid reference number</strong> → Lookup returns "Order not found."</li>
+    <li><strong>Database file doesn't exist</strong> → db module creates it and tables on first run. No manual setup needed.</li>
+  </ul>
+</div>
+
+<h2>What Was Simplified and Why</h2>
+<div class="card">
+  <ul>
+    <li><strong>Single seller for hackathon</strong> instead of multi-seller matching — keeps demo simple, data model clean.</li>
+    <li><strong>No real-time updates</strong> instead of websockets — refresh/check status is enough for the demo.</li>
+    <li><strong>No authentication</strong> instead of login system — name fields only, no auth complexity.</li>
+    <li><strong>No prices/payments</strong> instead of payment system — cash on collection, outside core loop.</li>
+    <li><strong>Plain CSS</strong> instead of Tailwind — no build step, no utility classes.</li>
+    <li><strong>better-sqlite3</strong> instead of ORM — raw SQL queries, visible and explainable.</li>
+  </ul>
+</div>
+
+<h2>Decisions and Open Issues</h2>
+<div class="card">
+  <ul>
+    <li><strong>Next.js with App Router</strong> — learner is comfortable with Next.js, handles frontend + API routes in one project.</li>
+    <li><strong>better-sqlite3</strong> — simplicity and transparency. Raw SQL means writing queries by hand, but that's a feature for learning.</li>
+    <li><strong>Groq API with gpt-oss-120b</strong> — free tier, speed, structured output support. Rate limits are plenty for a demo.</li>
+    <li><strong>Plain CSS modules</strong> — minimal stack. No utility classes or design tokens.</li>
+    <li><strong>Single seller for hackathon</strong> — seller setup form exists but demo uses one seller.</li>
+    <li><strong>No real-time updates</strong> — refresh/check status is sufficient for the demo.</li>
+  </ul>
+  <p class="muted" style="margin-top: 1rem;"><strong>Open questions:</strong> None blocking the build.</p>
+</div>
+
+</div>
+
+<script>
+function toggleReveal(el) {
+  el.classList.toggle('open');
+  const content = el.nextElementSibling;
+  content.classList.toggle('open');
+}
+</script>
+</body>
+</html>
