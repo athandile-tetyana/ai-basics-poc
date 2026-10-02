@@ -8,7 +8,14 @@
   --accent-hover: #d14e30;
   --accent-light: #f4a261;
   --green: #4a7c59;
+  --green-hover: #3d6b4a;
+  --red: #c44536;
   --radius: 12px;
+}
+
+.seller-theme {
+  --accent: var(--green);
+  --accent-hover: var(--green-hover);
 }
 
 * {

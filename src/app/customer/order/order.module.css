@@ -1,0 +1,56 @@
+.form-page {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.form-page h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+  color: var(--accent);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--bg);
+}
+
+.form-group input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.error {
+  color: var(--red);
+  font-size: 0.9rem;
+}
