@@ -1,0 +1,150 @@
+.layout {
+  max-width: 960px;
+  margin: 0;
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 7vw, 5rem) 4rem;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  color: var(--ink);
+}
+
+.headMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* ---------- pickup-day sections: painted board strips ---------- */
+
+.dayGroup {
+  margin-bottom: 2.5rem;
+}
+
+.dayHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: 0.45rem;
+  margin-bottom: 1.1rem;
+}
+
+.dayTitle {
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  color: var(--ink);
+  background: var(--accent-soft);
+  padding: 0.15rem 0.7rem;
+  transform: rotate(-0.8deg);
+}
+
+.dayDate {
+  font-family: var(--font-caveat), cursive;
+  font-size: 1.15rem;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.dayLeader {
+  flex: 1;
+  min-width: 1.5rem;
+  border-bottom: 3px dotted var(--muted);
+  transform: translateY(0.25rem);
+}
+
+.orderList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.orderCard {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  padding: 1.1rem 1.35rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+@media (max-width: 680px) {
+  .orderCard {
+    grid-template-columns: auto 1fr;
+  }
+
+  .orderActions {
+    grid-column: 1 / -1;
+  }
+}
+
+.orderInfo {
+  min-width: 0;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.3rem;
+}
+
+.itemName {
+  font-family: var(--font-anton), "Arial Narrow", sans-serif;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.orderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.dot {
+  color: var(--border);
+}
+
+.location {
+  font-style: italic;
+}
+
+.orderActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.empty {
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 480px;
+}

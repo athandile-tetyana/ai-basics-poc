@@ -52,9 +52,6 @@
 .aside {
   position: sticky;
   top: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
   padding-top: 4.5rem;
 }
 
@@ -66,17 +63,23 @@
 }
 
 .stickyNote {
-  background: var(--surface);
+  background: var(--accent-soft);
   border: 1px solid var(--border);
   padding: 1.2rem 1.35rem;
   transform: rotate(1.2deg);
   box-shadow: 3px 3px 0 var(--border);
 }
 
-.stickyNoteAlt {
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  padding: 1.2rem 1.35rem;
-  transform: rotate(-1deg);
-  box-shadow: 3px 3px 0 var(--border);
+.done {
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+  padding-top: 1rem;
+}
+
+.done h1 {
+  font-size: clamp(2rem, 5vw, 2.6rem);
+  color: var(--ink);
 }
