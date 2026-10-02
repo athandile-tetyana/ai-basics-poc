@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PreOrder Kasi — Scope</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e8e9ed;
+    --text-muted: #9ca0ae;
+    --accent: #f97316;
+    --accent-light: #fb923c;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 1rem; color: var(--accent-light); }
+  .tagline { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .kernel {
+    border-left: 4px solid var(--accent);
+    background: linear-gradient(135deg, rgba(249,115,22,0.08) 0%, transparent 100%);
+  }
+  .kernel strong { color: var(--accent-light); }
+  .loop-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .loop-step:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; margin-bottom: 0.25rem; }
+  .step-desc { color: var(--text-muted); font-size: 0.9rem; }
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .tag-now { background: rgba(34,197,94,0.15); color: var(--green); }
+  .tag-later { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .tag-cut { background: rgba(239,68,68,0.15); color: var(--red); }
+  .reveal {
+    margin: 0.5rem 0;
+  }
+  .reveal-toggle {
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+  .reveal-toggle:hover { border-color: var(--accent); }
+  .reveal-toggle .arrow { transition: transform 0.2s; }
+  .reveal-toggle.open .arrow { transform: rotate(180deg); }
+  .reveal-content {
+    display: none;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .reveal-content.open { display: block; }
+  .risk {
+    border-left: 3px solid var(--red);
+    padding-left: 1rem;
+    margin: 0.5rem 0;
+  }
+  .risk-title { font-weight: 600; color: var(--red); }
+  .risk-desc { color: var(--text-muted); font-size: 0.9rem; }
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+  .highlight-box {
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.3);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .highlight-box strong { color: var(--accent-light); }
+  ul { padding-left: 1.5rem; }
+  li { margin-bottom: 0.5rem; }
+  .muted { color: var(--text-muted); }
+  .small { font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>PreOrder Kasi</h1>
+<p class="tagline">Order ahead for a specific time. Sellers plan production. Customers get food when they need it.</p>
+
+<div class="card kernel">
+  <strong>The Unique Kernel:</strong> Ordering ahead for a specific time — not "order now," but "I need this ready at 5:30 tomorrow." The seller knows the night before what to prepare and when the customer plans to collect it. The seller prep list turns advance orders into "prepare 10 chicken feet meals by 5:30."
+  <br><br>
+  <span class="muted small">This scheduled pre-order + seller prep workflow is the differentiation we are testing, not a proven market fact.</span>
+</div>
+
+<h2>Who It's For</h2>
+<div class="card">
+  <p><strong>Customer:</strong> A person in South Africa with a schedule that doesn't match normal food-selling hours — someone who finishes work late, leaves very early, or needs food ready at a specific time.</p>
+  <br>
+  <p><strong>Seller:</strong> An informal food seller or small local food business who cooks to order and wants to plan production in advance.</p>
+</div>
+
+<h2>The Core Loop</h2>
+<div class="card">
+  <div class="loop-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">Customer creates an advance order</div>
+      <div class="step-desc">Food, quantity, future pickup date/time</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Seller confirms or declines the order</div>
+      <div class="step-desc">Two-step confirmation before preparation</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">Prep list is generated for the seller</div>
+      <div class="step-desc">"Prepare 10 chicken feet meals by 5:30"</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Customer receives pickup confirmation</div>
+      <div class="step-desc">Pickup info, time, and location</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Seller marks collected or not collected</div>
+      <div class="step-desc">Tracks no-shows for future learning</div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram">
+  <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f97316"/>
+      </marker>
+    </defs>
+    <rect x="20" y="60" width="140" height="80" rx="12" fill="#1a1d27" stroke="#f97316" stroke-width="2"/>
+    <text x="90" y="95" text-anchor="middle" fill="#e8e9ed" font-size="14" font-weight="600">Customer</text>
+    <text x="90" y="115" text-anchor="middle" fill="#9ca0ae" font-size="11">Places pre-order</text>
+    <line x1="160" y1="100" x2="220" y2="100" stroke="#f97316" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="220" y="60" width="140" height="80" rx="12" fill="#1a1d27" stroke="#3b82f6" stroke-width="2"/>
+    <text x="290" y="95" text-anchor="middle" fill="#e8e9ed" font-size="14" font-weight="600">System</text>
+    <text x="290" y="115" text-anchor="middle" fill="#9ca0ae" font-size="11">Matches seller</text>
+    <line x1="360" y1="100" x2="420" y2="100" stroke="#f97316" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="420" y="60" width="140" height="80" rx="12" fill="#1a1d27" stroke="#22c55e" stroke-width="2"/>
+    <text x="490" y="95" text-anchor="middle" fill="#e8e9ed" font-size="14" font-weight="600">Seller</text>
+    <text x="490" y="115" text-anchor="middle" fill="#9ca0ae" font-size="11">Sees prep list</text>
+    <line x1="490" y1="140" x2="490" y2="170" stroke="#f97316" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="490" y="190" text-anchor="middle" fill="#9ca0ae" font-size="11">Confirms & prepares</text>
+  </svg>
+</div>
+
+<h2>What "Working" Looks Like</h2>
+<div class="card">
+  <p>A customer creates an advance order for a specific pickup time. The seller confirms and gets a prep list. The customer receives pickup confirmation. The seller marks the order as collected or not collected.</p>
+  <br>
+  <div class="highlight-box">
+    <strong>The "oh, that's cool" beat:</strong> The seller prep list — turning scattered advance orders into a clear production plan.
+  </div>
+</div>
+
+<h2>The ONE AI Feature</h2>
+<div class="card">
+  <p><strong>Natural-language order parsing:</strong> A customer types something like "2 kota tomorrow at 5:30" and AI extracts:</p>
+  <ul style="margin: 0.5rem 0 0.5rem 1.5rem;">
+    <li>Item (kota)</li>
+    <li>Quantity (2)</li>
+    <li>Pickup date (tomorrow)</li>
+    <li>Pickup time (5:30)</li>
+  </ul>
+  <p>The customer can then review and confirm the structured order.</p>
+  <br>
+  <p class="muted"><strong>Safety net:</strong> The normal form remains the fallback if AI fails, so a slow or failed AI call cannot break the core flow.</p>
+</div>
+
+<h2>No-Show Handling</h2>
+<div class="card">
+  <ul>
+    <li><strong>Step 1:</strong> Customer places the order</li>
+    <li><strong>Step 2:</strong> Seller confirms they can fulfill it</li>
+    <li><strong>Step 3:</strong> Seller starts preparing</li>
+    <li><strong>Step 4:</strong> Seller marks "collected" or "not collected" at pickup time</li>
+  </ul>
+  <br>
+  <p class="muted">No deposits or penalties in MVP. No-shows are an open business risk to test with 1-3 sellers.</p>
+</div>
+
+<h2>Scope Boundaries</h2>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="tag tag-now">IN</span> What's in the MVP</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>Customer selects food and quantity</li>
+      <li>Customer chooses a future pickup date and time</li>
+      <li>Location as a simple context field (no complex location matching)</li>
+      <li>Basic matching: choose a seller who offers the requested item and is available for the requested pickup time (no ranking or advanced matching). Seller availability is a simple field, e.g. "Available 16:00–20:00" — no complex scheduling.</li>
+      <li>Seller dashboard with orders and prep list</li>
+      <li>Seller confirms or declines an order</li>
+      <li>Customer sees confirmation with pickup info</li>
+      <li>Seller marks order as "collected" or "not collected"</li>
+      <li>One AI feature: natural-language order parsing (with form fallback)</li>
+      <li>English only</li>
+      <li>Cash on collection</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="tag tag-later">LATER</span> Worth doing, just not now</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content">
+    <ul>
+      <li>WhatsApp integration for sellers who prefer it</li>
+      <li>Multilingual support (isiXhosa, Afrikaans)</li>
+      <li>Online payments or deposits to reduce no-shows</li>
+      <li>Advanced matching based on seller capacity</li>
+      <li>Seller analytics and demand forecasting</li>
+      <li>Multiple sellers per order or order splitting</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="tag tag-cut">CUT</span> Explicitly out, each with a reason</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content">
+    <ul>
+      <li><strong>Delivery logistics</strong> — Too complex and costly for a solo builder. Customer picks up.</li>
+      <li><strong>WhatsApp integration</strong> — Adds complexity and API dependencies. Start with a web app.</li>
+      <li><strong>Online payments</strong> — Cash on collection is simpler and more realistic for informal sellers.</li>
+      <li><strong>Multilingual support</strong> — Start with English for the demo. Add isiXhosa and Afrikaans later.</li>
+      <li><strong>Complex maps</strong> — Location matters, but a simple text address or area selector is sufficient.</li>
+      <li><strong>Ratings and reviews</strong> — Trust comes from repeat customers first. Add later.</li>
+      <li><strong>Deposits or penalties</strong> — List no-shows as an open business risk to test, not an MVP feature.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Open Business Risks</h2>
+<div class="card">
+  <div class="risk">
+    <div class="risk-title">No-shows</div>
+    <div class="risk-desc">With cash and no deposit, the seller carries the loss if a customer doesn't collect. Test with 1-3 sellers to measure no-show rates.</div>
+  </div>
+  <div class="risk">
+    <div class="risk-title">Seller adoption</div>
+    <div class="risk-desc">Sellers may not update availability or confirm orders quickly. Test manually with 1-3 sellers.</div>
+  </div>
+  <div class="risk">
+    <div class="risk-title">Customer behavior</div>
+    <div class="risk-desc">People may not actually order food in advance. This is the main hypothesis to test.</div>
+  </div>
+</div>
+
+<h2>Manual Test Plan</h2>
+<div class="card">
+  <p>In parallel with the build, test manually with 1-3 sellers and a few customers:</p>
+  <ul>
+    <li>Do sellers understand the prep list?</li>
+    <li>Do customers actually place pre-orders?</li>
+    <li>What is the no-show rate?</li>
+    <li>What friction points exist in the workflow?</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+function toggleReveal(el) {
+  el.classList.toggle('open');
+  const content = el.nextElementSibling;
+  content.classList.toggle('open');
+}
+</script>
+</body>
+</html>
