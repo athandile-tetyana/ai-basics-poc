@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PreOrder Kasi — PRD</title>
+<style>
+  :root {
+    --bg: #fdf8f3;
+    --surface: #ffffff;
+    --border: #e8ddd3;
+    --text: #2d2a26;
+    --text-muted: #6b6560;
+    --accent: #e85d3d;
+    --accent-light: #f4a261;
+    --green: #4a7c59;
+    --red: #c44536;
+    --blue: #3d6b8e;
+    --warm: #f4e8d8;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 1rem; color: var(--accent); }
+  .tagline { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .kernel {
+    border-left: 4px solid var(--accent);
+    background: linear-gradient(135deg, rgba(232,93,61,0.06) 0%, transparent 100%);
+  }
+  .kernel strong { color: var(--accent); }
+  .loop-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .loop-step:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; margin-bottom: 0.25rem; }
+  .step-desc { color: var(--text-muted); font-size: 0.9rem; }
+  .tag {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .tag-now { background: rgba(74,124,89,0.15); color: var(--green); }
+  .tag-later { background: rgba(61,107,142,0.15); color: var(--blue); }
+  .tag-cut { background: rgba(196,69,54,0.15); color: var(--red); }
+  .reveal {
+    margin: 0.5rem 0;
+  }
+  .reveal-toggle {
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s;
+  }
+  .reveal-toggle:hover { border-color: var(--accent); }
+  .reveal-toggle .arrow { transition: transform 0.2s; }
+  .reveal-toggle.open .arrow { transform: rotate(180deg); }
+  .reveal-content {
+    display: none;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .reveal-content.open { display: block; }
+  .criterion {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+  }
+  .criterion::before {
+    content: "☐";
+    color: var(--accent);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram svg { max-width: 100%; height: auto; }
+  .highlight-box {
+    background: rgba(232,93,61,0.08);
+    border: 1px solid rgba(232,93,61,0.25);
+    border-radius: var(--radius);
+    padding: 1rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .highlight-box strong { color: var(--accent); }
+  ul { padding-left: 1.5rem; }
+  li { margin-bottom: 0.5rem; }
+  .muted { color: var(--text-muted); }
+  .small { font-size: 0.85rem; }
+  .flow-arrow {
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin: 0.25rem 0;
+  }
+  .screen-badge {
+    display: inline-block;
+    background: var(--warm);
+    color: var(--accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>PreOrder Kasi — PRD</h1>
+<p class="tagline">Order ahead for a specific time. Sellers plan production. Customers get food when they need it.</p>
+
+<div class="card kernel">
+  <strong>The Unique Kernel:</strong> Ordering ahead for a specific time — not "order now," but "I need this ready at 5:30 tomorrow." The seller knows the night before what to prepare and when the customer plans to collect it. The seller prep list turns advance orders into "prepare 10 chicken feet meals by 5:30."
+</div>
+
+<h2>The Core Journey</h2>
+<div class="card">
+  <div class="loop-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">User opens the app</div>
+      <div class="step-desc">Two buttons: "I'm a customer" and "I'm a seller"</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Customer places a pre-order</div>
+      <div class="step-desc">AI text box + form (name, item, quantity, date, time, location). AI fills fields, customer can edit, then submits.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">System matches to a seller</div>
+      <div class="step-desc">Automatic match on item + time. If no match: "No seller available for that item or time."</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Customer sees confirmation</div>
+      <div class="step-desc">Order details, status (Pending), name, reference number. Can refresh to check status.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Seller confirms or declines</div>
+      <div class="step-desc">Dashboard shows incoming orders. Seller confirms or declines each one.</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="step-title">Prep list is generated</div>
+      <div class="step-desc">Confirmed orders grouped by pickup time. "5:30 PM — 2x kota, 1x chicken feet meal."</div>
+    </div>
+  </div>
+  <div class="loop-step">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <div class="step-title">Seller marks collected or not collected</div>
+      <div class="step-desc">At pickup time, seller marks each order. Customer sees status update when they refresh.</div>
+    </div>
+  </div>
+</div>
+
+<div class="diagram">
+  <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#e85d3d"/>
+      </marker>
+    </defs>
+    <rect x="20" y="40" width="120" height="60" rx="10" fill="#fff" stroke="#e85d3d" stroke-width="2"/>
+    <text x="80" y="65" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Customer</text>
+    <text x="80" y="82" text-anchor="middle" fill="#6b6560" font-size="10">Places order</text>
+    <line x1="140" y1="70" x2="190" y2="70" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="190" y="40" width="120" height="60" rx="10" fill="#fff" stroke="#3d6b8e" stroke-width="2"/>
+    <text x="250" y="65" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">System</text>
+    <text x="250" y="82" text-anchor="middle" fill="#6b6560" font-size="10">Matches seller</text>
+    <line x1="310" y1="70" x2="360" y2="70" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="360" y="40" width="120" height="60" rx="10" fill="#fff" stroke="#4a7c59" stroke-width="2"/>
+    <text x="420" y="65" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Seller</text>
+    <text x="420" y="82" text-anchor="middle" fill="#6b6560" font-size="10">Sees prep list</text>
+    <line x1="420" y1="100" x2="420" y2="140" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="360" y="140" width="120" height="60" rx="10" fill="#fff" stroke="#4a7c59" stroke-width="2"/>
+    <text x="420" y="165" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Prep List</text>
+    <text x="420" y="182" text-anchor="middle" fill="#6b6560" font-size="10">Grouped by time</text>
+    <line x1="360" y1="170" x2="310" y2="170" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="190" y="140" width="120" height="60" rx="10" fill="#fff" stroke="#e85d3d" stroke-width="2"/>
+    <text x="250" y="165" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Seller</text>
+    <text x="250" y="182" text-anchor="middle" fill="#6b6560" font-size="10">Marks collected</text>
+    <line x1="190" y1="170" x2="140" y2="170" stroke="#e85d3d" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="20" y="140" width="120" height="60" rx="10" fill="#fff" stroke="#e85d3d" stroke-width="2"/>
+    <text x="80" y="165" text-anchor="middle" fill="#2d2a26" font-size="13" font-weight="600">Customer</text>
+    <text x="80" y="182" text-anchor="middle" fill="#6b6560" font-size="10">Sees status</text>
+    <text x="350" y="250" text-anchor="middle" fill="#6b6560" font-size="11">SQLite database persists all data between sessions</text>
+  </svg>
+</div>
+
+<h2>Screens and Layout</h2>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">1</span> Home Screen</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>Two large buttons: "I'm a customer" and "I'm a seller"</li>
+      <li>Simple, centered layout</li>
+      <li>App name "PreOrder Kasi" at the top</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">2</span> Customer Order Form</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>AI text box at the top: single-line input with placeholder "Describe your order (e.g. '2 kota, tomorrow at 5:30')" and a "Parse" button</li>
+      <li>Form fields below (always visible): Name, Item, Quantity, Pickup Date, Pickup Time, Location (text field)</li>
+      <li>Submit button</li>
+      <li>If AI parse fails or is slow, the customer can ignore the text box and fill the form directly</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">3</span> Customer Order Confirmation</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>Order details: item, quantity, pickup date/time, location</li>
+      <li>Customer name</li>
+      <li>Reference number (incrementing order ID)</li>
+      <li>Current status (Pending, Confirmed, Declined, Collected, Not collected)</li>
+      <li>"Check status" button to refresh</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">4</span> Seller Setup Form (first time only)</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>Name</li>
+      <li>Items they sell (comma-separated list, e.g. "kota, chicken feet, pap")</li>
+      <li>Available pickup window (start time and end time, e.g. "16:00 to 20:00")</li>
+      <li>Submit button</li>
+      <li>After setup, seller can edit items or availability from the dashboard</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">5</span> Seller Dashboard</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>List of incoming orders, each showing: customer name, item, quantity, pickup time, status</li>
+      <li>"Confirm" and "Decline" buttons for each pending order</li>
+      <li>Link/button to view prep list</li>
+      <li>Option to edit items or availability</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">6</span> Seller Prep List</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>Confirmed orders grouped by pickup time slot</li>
+      <li>Each time slot shows: time, list of items with quantities, number of orders</li>
+      <li>Each order can be marked as "collected" or "not collected"</li>
+      <li>Only confirmed orders appear here; declined orders do not</li>
+    </ul>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="screen-badge">7</span> Order Lookup</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li>Simple screen with a single input: "Enter your reference number"</li>
+      <li>Customer enters the reference number from their confirmation screen</li>
+      <li>Shows the order details and current status (same as confirmation screen)</li>
+      <li>Accessible from the home screen ("Look up my order" link)</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Look and Feel</h2>
+<div class="card">
+  <ul>
+    <li>Warm, approachable, South African, food-related character</li>
+    <li>Not dark, not corporate, not techy</li>
+    <li>Simple and clean — not a heavy custom design system</li>
+    <li>Exact colours and typography to be proposed by the agent during spec/build</li>
+  </ul>
+</div>
+
+<h2>Features and Behavior</h2>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Customer: Place a Pre-Order</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a customer, I want to place a pre-order for a specific pickup time so that my food is ready when I arrive.</p>
+    <div class="criterion">Customer can enter name, item, quantity, pickup date, pickup time, and location, and submit an order</div>
+    <div class="criterion">After submitting, customer sees a confirmation screen with order details, their name, a reference number, and status "Pending"</div>
+    <div class="criterion">If no seller matches the item or time, customer sees "No seller available for that item or time"</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Customer: AI-Assisted Order Entry</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a customer, I want to type my order in plain language so that I don't have to fill in every field manually.</p>
+    <div class="criterion">Customer can type "2 kota tomorrow at 5:30" in the text box, click "Parse", and the form fields are filled with item=kota, quantity=2, date=tomorrow, time=5:30</div>
+    <div class="criterion">Customer can edit any field after parsing and before submitting</div>
+    <div class="criterion">If AI fails, is slow, or produces wrong results, the customer can fill the form manually and submit — the text box is never required</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Customer: Check Order Status</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a customer, I want to check my order status so that I know when the seller has confirmed it.</p>
+    <div class="criterion">Customer can refresh or tap "Check status" to see updates</div>
+    <div class="criterion">Status changes from Pending to Confirmed (with pickup time and location) or Declined</div>
+    <div class="criterion">No real-time updates — customer must manually refresh</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller: One-Time Setup</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a seller, I want to set up my profile once so that the system knows what I sell and when I'm available.</p>
+    <div class="criterion">First-time seller sees a setup form with name, items, and availability window</div>
+    <div class="criterion">After setup, seller lands on the dashboard</div>
+    <div class="criterion">Seller can edit items or availability later from the dashboard</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller: Manage Incoming Orders</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a seller, I want to see and respond to incoming orders so that I can plan my preparation.</p>
+    <div class="criterion">Dashboard lists all incoming orders with customer name, item, quantity, pickup time, and status</div>
+    <div class="criterion">Seller can confirm or decline each pending order</div>
+    <div class="criterion">Confirmed orders appear in the prep list; declined orders do not</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller: View Prep List</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a seller, I want to see my confirmed orders grouped by pickup time so that I know what to prepare and by when.</p>
+    <div class="criterion">Prep list shows confirmed orders grouped by time slot (e.g., "5:30 PM — 2x kota, 1x chicken feet meal")</div>
+    <div class="criterion">Each time slot shows the items, quantities, and number of orders</div>
+    <div class="criterion">Seller can see which orders make up each time slot</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Seller: Mark Orders as Collected</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a seller, I want to mark orders as collected or not collected so that I can track no-shows.</p>
+    <div class="criterion">Seller can mark an individual order as "collected" from the prep list view</div>
+    <div class="criterion">Seller can mark an individual order as "not collected" from the prep list view</div>
+    <div class="criterion">Collected/not collected status is visible to the customer when they check status</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Customer: Look Up Order</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a customer, I want to look up my order by reference number so that I can check status without keeping the tab open.</p>
+    <div class="criterion">Customer can enter their reference number on the lookup screen and see their order details and current status</div>
+    <div class="criterion">Lookup screen is accessible from the home screen</div>
+    <div class="criterion">If the reference number doesn't exist, customer sees "Order not found"</div>
+  </div>
+</div>
+
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span>Data Persistence</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <p>As a user, I want my data to persist so that orders and prep lists survive tab closes, refreshes, and browser restarts.</p>
+    <div class="criterion">Orders placed by a customer are still visible after closing and reopening the app</div>
+    <div class="criterion">Seller dashboard and prep list are still populated after closing and reopening the app</div>
+    <div class="criterion">Data is stored in a simple database (SQLite), not just in memory</div>
+  </div>
+</div>
+
+<h2>States and Boundaries</h2>
+<div class="card">
+  <ul>
+    <li><strong>First use (seller):</strong> Seller sees the setup form. After submitting, they see the dashboard.</li>
+    <li><strong>First use (customer):</strong> Customer sees the order form. No setup needed.</li>
+    <li><strong>Empty state (seller dashboard):</strong> "No orders yet" message when there are no incoming orders.</li>
+    <li><strong>Empty state (prep list):</strong> "No confirmed orders yet" message when there are no confirmed orders.</li>
+    <li><strong>No match:</strong> Customer sees "No seller available for that item or time" when no seller matches.</li>
+    <li><strong>AI failure:</strong> Customer can always fall back to manual form entry. The text box is never required.</li>
+    <li><strong>Order lifecycle:</strong> Pending → Confirmed → Collected/Not collected, or Pending → Declined.</li>
+    <li><strong>No real-time updates:</strong> Customer must refresh or tap "Check status" to see status changes.</li>
+    <li><strong>No login:</strong> Identified by name fields only.</li>
+    <li><strong>No prices:</strong> Cash on collection only.</li>
+    <li><strong>English only.</strong></li>
+  </ul>
+</div>
+
+<h2>Product Decisions</h2>
+<div class="card">
+  <ul>
+    <li><strong>One app, two buttons</strong> — not separate customer and seller apps. Simpler to build and demo.</li>
+    <li><strong>No login system</strong> — just name fields. Keeps the MVP small and avoids auth complexity.</li>
+    <li><strong>AI text box is a shortcut, not a requirement</strong> — the form always works on its own. This is the safety net that makes the AI feature low-risk.</li>
+    <li><strong>No real-time updates</strong> — refresh/check status is enough for the demo. Websockets or polling would add complexity without proving the core concept.</li>
+    <li><strong>SQLite for persistence</strong> — data must survive tab switches and refreshes. In-memory storage would break the demo.</li>
+    <li><strong>No prices</strong> — cash on collection. Testing the pre-order and prep list flow, not payments.</li>
+    <li><strong>Simple matching on item + time</strong> — no ranking, no customer choice. Just a basic match.</li>
+    <li><strong>English only</strong> — isiXhosa and Afrikaans are deferred.</li>
+    <li><strong>Seller setup is one-time</strong> — a simple form, not a full onboarding flow. Editable later but not the focus of the demo.</li>
+    <li><strong>Single seller for hackathon</strong> — the seller setup form exists in the product, but the build and demo only need to support one seller account. No multi-seller selection or seller matching beyond the single seller.</li>
+  </ul>
+</div>
+
+<h2>What We're Building</h2>
+<div class="card">
+  <ul>
+    <li>Home screen with two buttons (customer / seller) and "Look up my order" link</li>
+    <li>Customer order form with AI text box and manual form fields</li>
+    <li>Customer order confirmation screen with status checking</li>
+    <li>Order lookup screen (enter reference number to see status)</li>
+    <li>Seller one-time setup form (name, items, availability)</li>
+    <li>Seller dashboard with incoming orders list (confirm/decline)</li>
+    <li>Seller prep list grouped by pickup time (mark collected/not collected)</li>
+    <li>Automatic matching on item + time (single seller for hackathon)</li>
+    <li>SQLite database for persistence</li>
+    <li>Natural-language order parsing AI feature with form fallback</li>
+  </ul>
+</div>
+
+<h2>Deferred From the POC</h2>
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="tag tag-later">LATER</span> Worth doing, just not now</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li><strong>WhatsApp integration</strong> — adds API dependencies and complexity. Start with a web app.</li>
+      <li><strong>Multilingual support (isiXhosa, Afrikaans)</strong> — English is enough for the demo.</li>
+      <li><strong>Online payments or deposits</strong> — cash on collection is simpler and more realistic for informal sellers.</li>
+      <li><strong>Advanced matching based on seller capacity</strong> — simple item + time matching is enough to prove the concept.</li>
+      <li><strong>Seller analytics and demand forecasting</strong> — not needed for the core loop.</li>
+      <li><strong>Multiple sellers per order or order splitting</strong> — one seller per order is enough.</li>
+      <li><strong>Ratings and reviews</strong> — trust comes from repeat customers first.</li>
+      <li><strong>Deposits or penalties</strong> — no-shows are an open business risk to test, not an MVP feature.</li>
+      <li><strong>Real-time updates</strong> — refresh/check status is sufficient for the demo.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Non-Goals</h2>
+<div class="reveal">
+  <div class="reveal-toggle" onclick="toggleReveal(this)">
+    <span><span class="tag tag-cut">CUT</span> Explicitly out, each with a reason</span>
+    <span class="arrow">&#9660;</span>
+  </div>
+  <div class="reveal-content open">
+    <ul>
+      <li><strong>Delivery logistics</strong> — too complex and costly for a solo builder. Customer picks up.</li>
+      <li><strong>WhatsApp integration</strong> — adds complexity and API dependencies. Start with a web app.</li>
+      <li><strong>Online payments</strong> — cash on collection is simpler and more realistic for informal sellers.</li>
+      <li><strong>Multilingual support</strong> — start with English for the demo.</li>
+      <li><strong>Complex maps</strong> — a simple text location field is sufficient.</li>
+      <li><strong>Ratings and reviews</strong> — trust comes from repeat customers first.</li>
+      <li><strong>Deposits or penalties</strong> — no-shows are an open business risk to test, not an MVP feature.</li>
+      <li><strong>Real-time updates</strong> — refresh/check status is enough for the demo.</li>
+      <li><strong>Login system</strong> — name fields only, no auth.</li>
+      <li><strong>Prices</strong> — cash on collection, no payment processing.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>Open Questions</h2>
+<div class="card">
+  <p>None blocking spec approval. The product is well-defined and ready for technical planning.</p>
+</div>
+
+</div>
+
+<script>
+function toggleReveal(el) {
+  el.classList.toggle('open');
+  const content = el.nextElementSibling;
+  content.classList.toggle('open');
+}
+</script>
+</body>
+</html>
